@@ -16,7 +16,8 @@ import (
 )
 
 // data pvc name
-var dataPVC = os.Getenv("DATA_PVC")
+var dataNFSSERVER = os.Getenv("DATA_NFS_SERVER")
+var dataNFSPATH = os.Getenv("DATA_NFS_PATH")
 
 // config pvc name
 var configPVC = os.Getenv("CONFIG_PVC")
@@ -140,8 +141,10 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 				{
 					Name: "data",
 					VolumeSource: corev1.VolumeSource{
-						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-							ClaimName: dataPVC,
+						NFS: &corev1.NFSVolumeSource{
+							Server:   dataNFSSERVER,
+							Path:     dataNFSPATH,
+							ReadOnly: false,
 						},
 					},
 				},
