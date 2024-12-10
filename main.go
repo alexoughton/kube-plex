@@ -15,12 +15,14 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// data pvc name
+// data nfs configuration
 var dataNFSSERVER = os.Getenv("DATA_NFS_SERVER")
 var dataNFSPATH = os.Getenv("DATA_NFS_PATH")
+var data4KNFSPATH = os.Getenv("DATA_4K_NFS_PATH")
 
-// config pvc name
-var configPVC = os.Getenv("CONFIG_PVC")
+// config iscsi configuration
+var configTARGETPORTAL = os.Getenv("CONFIG_TARGET_PORTAL")
+var configIQN = os.Getenv("CONFIG_IQN")
 
 // transcode pvc name
 var transcodePVC = os.Getenv("TRANSCODE_PVC")
@@ -126,6 +128,11 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 							ReadOnly:  true,
 						},
 						{
+							Name:      "4kdata",
+							MountPath: "/4kdata",
+							ReadOnly:  true,
+						},
+						{
 							Name:      "config",
 							MountPath: "/config",
 							ReadOnly:  true,
@@ -144,15 +151,29 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 						NFS: &corev1.NFSVolumeSource{
 							Server:   dataNFSSERVER,
 							Path:     dataNFSPATH,
-							ReadOnly: false,
+							ReadOnly: true,
+						},
+					},
+				},
+				{
+					Name: "4kdata",
+					VolumeSource: corev1.VolumeSource{
+						NFS: &corev1.NFSVolumeSource{
+							Server:   dataNFSSERVER,
+							Path:     data4KNFSPATH,
+							ReadOnly: true,
 						},
 					},
 				},
 				{
 					Name: "config",
 					VolumeSource: corev1.VolumeSource{
-						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-							ClaimName: configPVC,
+						ISCSI: &corev1.ISCSIVolumeSource{
+							TargetPortal: configTARGETPORTAL,
+							IQN:          configIQN,
+							Lun:          0,
+							FSType:       "ext4",
+							ReadOnly:     true,
 						},
 					},
 				},
