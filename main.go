@@ -21,9 +21,8 @@ var dataNFSSERVER = os.Getenv("DATA_NFS_SERVER")
 var dataNFSPATH = os.Getenv("DATA_NFS_PATH")
 var data4KNFSPATH = os.Getenv("DATA_4K_NFS_PATH")
 
-// config iscsi configuration
-var configTARGETPORTAL = os.Getenv("CONFIG_TARGET_PORTAL")
-var configIQN = os.Getenv("CONFIG_IQN")
+// config pvc name
+var configPVC = os.Getenv("CONFIG_PVC")
 
 // transcode pvc name
 var transcodePVC = os.Getenv("TRANSCODE_PVC")
@@ -174,12 +173,8 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 				{
 					Name: "config",
 					VolumeSource: corev1.VolumeSource{
-						ISCSI: &corev1.ISCSIVolumeSource{
-							TargetPortal: configTARGETPORTAL,
-							IQN:          configIQN,
-							Lun:          0,
-							FSType:       "ext4",
-							ReadOnly:     true,
+						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
+							ClaimName: configPVC,
 						},
 					},
 				},
