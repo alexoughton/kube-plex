@@ -10,6 +10,7 @@ import (
 
 	"github.com/munnerz/kube-plex/pkg/signals"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -121,6 +122,11 @@ func generatePod(cwd string, env []string, args []string) *corev1.Pod {
 					Image:      pmsImage,
 					Env:        envVars,
 					WorkingDir: cwd,
+					Resources: corev1.ResourceRequirements{
+						Limits: corev1.ResourceList{
+							"gpu.intel.com/i915": resource.MustParse("1"),
+						},
+					},
 					VolumeMounts: []corev1.VolumeMount{
 						{
 							Name:      "data",
